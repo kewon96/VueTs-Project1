@@ -11,7 +11,9 @@
         <ul>
           <TodoListItem v-for="(todoItem, index) in todoItems"
                         :key="index"
-                        :todoItem="todoItem" />
+                        :index="index"
+                        :todoItem="todoItem"
+                        @remove="removeTodoItem"/>
         </ul>
       </div>
     </main>
@@ -28,7 +30,7 @@ const storage = {
   /**
    * storage에 데이터 저장
    * 데이터를 어떻게 넣을 것인지 규격을 지정하는 중간단계역할
-   * @param value: string
+   * @param todoItem
    */
   save(todoItem: any[]) {
     // 직렬화(배열 -> 문자열)
@@ -76,6 +78,10 @@ export default defineComponent({
     },
     fetchTodoItems() {
       this.todoItems = storage.fetch();
+    },
+    removeTodoItem(index: Number) {
+      this.todoItems.splice(index, 1);
+      storage.save(this.todoItems);
     }
   },
   created() {
