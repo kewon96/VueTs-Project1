@@ -15,7 +15,6 @@ import { defineComponent } from "vue";
 
 export default defineComponent({
   name: 'TodoInput',
-  // props: ['item'],
   props: {
     item: {
       type: String,
