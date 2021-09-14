@@ -13,6 +13,7 @@
                         :key="index"
                         :index="index"
                         :todoItem="todoItem"
+                        @toggle="toggleTodoItemComplete"
                         @remove="removeTodoItem"/>
         </ul>
       </div>
@@ -46,6 +47,12 @@ const storage = {
   }
 }
 
+// 객체를 위한 타입
+export interface Todo {
+  title: string;
+  done: boolean;
+}
+
 export default defineComponent({
   name: 'App',
   components: {
@@ -55,7 +62,7 @@ export default defineComponent({
   data() {
     return {
       todoText: '',
-      todoItems: [] as any
+      todoItems: [] as Todo[]
     }
   },
   methods: {
@@ -66,9 +73,13 @@ export default defineComponent({
     },
     addTodoItem() {
       const value = this.todoText;
+      const todo: Todo = {
+        title: value,
+        done: false
+      }
 
       // 기존의 items에 값을 밀어넣는다.
-      this.todoItems.push(value);
+      this.todoItems.push(todo);
       // storage에 데이터 저장
       storage.save(this.todoItems);
       this.initTodoText();
@@ -79,7 +90,13 @@ export default defineComponent({
     fetchTodoItems() {
       this.todoItems = storage.fetch();
     },
-    removeTodoItem(index: Number) {
+    toggleTodoItemComplete(todoItem: Todo, index: number) {
+      this.todoItems.splice(index, 1, {
+        ...todoItem,
+        done: !todoItem.done,
+      })
+    },
+    removeTodoItem(index: number) {
       this.todoItems.splice(index, 1);
       storage.save(this.todoItems);
     }
