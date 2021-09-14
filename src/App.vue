@@ -33,12 +33,12 @@ const storage = {
    * 데이터를 어떻게 넣을 것인지 규격을 지정하는 중간단계역할
    * @param todoItem
    */
-  save(todoItem: any[]) {
+  save(todoItem: Todo[]) {
     // 직렬화(배열 -> 문자열)
     const parsed = JSON.stringify(todoItem);
     localStorage.setItem(STORAGE_KEY, parsed);
   },
-  fetch() {
+  fetch(): Todo[] {
     // localstorage에 있는 데이터를 조회
     const todoItems = localStorage.getItem(STORAGE_KEY) || '[]';
 
@@ -88,7 +88,15 @@ export default defineComponent({
       this.todoText = '';
     },
     fetchTodoItems() {
-      this.todoItems = storage.fetch();
+      this.todoItems = storage.fetch().sort((a, b) => {
+        if( a.title > b.title ) {
+          return 1;
+        } else if( a.title < b.title ) {
+          return -1;
+        } else {
+          return 0;
+        }
+      });
     },
     toggleTodoItemComplete(todoItem: Todo, index: number) {
       this.todoItems.splice(index, 1, {
