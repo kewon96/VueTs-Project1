@@ -4,12 +4,12 @@
       <h1>Hello Vue.Ts</h1>
     </header>
     <main>
-      <TodoInput :item="todoText"
-                 @input="updateTodoText"
+      <TodoInput :item="content.todoText"
+                 @inputtext="updateTodoText"
                  @add="addTodoItem" />
       <div>
         <ul>
-          <TodoListItem v-for="(todoItem, index) in todoItems"
+          <TodoListItem v-for="(todoItem, index) in content.todoItems"
                         :key="index"
                         :index="index"
                         :todoItem="todoItem"
@@ -21,10 +21,10 @@
   </div>
 </template>
 
-<script lang="ts">
-import {defineComponent} from "vue";
+<script setup lang="ts">
 import TodoInput from "./components/TodoInput.vue";
 import TodoListItem from "./components/TodoListItem.vue";
+import {reactive} from "vue";
 
 const STORAGE_KEY = "vue-todo-ts-v1";
 const storage = {
@@ -53,64 +53,59 @@ export interface Todo {
   done: boolean;
 }
 
-export default defineComponent({
-  name: 'App',
-  components: {
-    TodoInput,
-    TodoListItem
-  },
-  data() {
-    return {
-      todoText: '',
-      todoItems: [] as Todo[]
-    }
-  },
-  methods: {
-    updateTodoText(value: string) {
-      if(typeof value === 'string') {
-        this.todoText = value;
-      }
-    },
-    addTodoItem() {
-      const value = this.todoText;
-      const todo: Todo = {
-        title: value,
-        done: false
-      }
-
-      // 기존의 items에 값을 밀어넣는다.
-      this.todoItems.push(todo);
-      // storage에 데이터 저장
-      storage.save(this.todoItems);
-      this.initTodoText();
-    },
-    initTodoText() {
-      this.todoText = '';
-    },
-    fetchTodoItems() {
-      this.todoItems = storage.fetch().sort((a, b) => {
-        if( a.title > b.title ) {
-          return 1;
-        } else if( a.title < b.title ) {
-          return -1;
-        } else {
-          return 0;
-        }
-      });
-    },
-    toggleTodoItemComplete(todoItem: Todo, index: number) {
-      this.todoItems.splice(index, 1, {
-        ...todoItem,
-        done: !todoItem.done,
-      })
-    },
-    removeTodoItem(index: number) {
-      this.todoItems.splice(index, 1);
-      storage.save(this.todoItems);
-    }
-  },
-  created() {
-    this.fetchTodoItems();
-  }
+const content = reactive({
+  todoText: '',
+  todoItems: [] as Todo[]
 })
+
+const updateTodoText = (value: string) => {
+  if(typeof value === 'string') {
+    content.todoText = value;
+  }
+}
+
+const addTodoItem = () => {
+  const value = content.todoText;
+  const todo: Todo = {
+    title: value,
+    done: false
+  }
+
+  // 기존의 items에 값을 밀어넣는다.
+  content.todoItems.push(todo);
+  // storage에 데이터 저장
+  storage.save(content.todoItems);
+  initTodoText();
+}
+
+const initTodoText = () => {
+  content.todoText = '';
+}
+
+const fetchTodoItems = () => {
+  content.todoItems = storage.fetch().sort((a, b) => {
+    if( a.title > b.title ) {
+      return 1;
+    } else if( a.title < b.title ) {
+      return -1;
+    } else {
+      return 0;
+    }
+  });
+}
+
+const toggleTodoItemComplete = (todoItem: Todo, index: number) => {
+      content.todoItems.splice(index, 1, {
+    ...todoItem,
+    done: !todoItem.done,
+  })
+}
+
+const removeTodoItem = (index: number) => {
+  content.todoItems.splice(index, 1);
+  storage.save(content.todoItems);
+}
+
+fetchTodoItems();
+
 </script>
